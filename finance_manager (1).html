@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ví Cá Nhân – Quản lý Tài chính</title>
+<title>家計管理アプリ – Zaimu Kanri</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -290,47 +290,67 @@
 
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
   .syncing { animation: pulse 1.2s infinite; }
+
+  /* MONTH NAV */
+  .month-nav {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .month-nav button {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); width: 32px; height: 32px; border-radius: 8px;
+    font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+  }
+  .month-nav button:hover { border-color: var(--accent); color: var(--accent); }
+  .month-nav .month-label {
+    font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600;
+    color: var(--text); min-width: 120px; text-align: center;
+  }
+  .month-nav .today-btn {
+    width: auto; padding: 0 12px; font-size: 12px; color: var(--muted);
+  }
+  .month-nav .today-btn:hover { color: var(--accent); }
 </style>
 </head>
 <body>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
-  <div class="logo">💰 <span>Ví Cá Nhân</span></div>
+  <div class="logo">💰 <span>家計管理</span></div>
 
-  <div class="nav-section">Tổng quan</div>
+  <div class="nav-section">概要</div>
   <div class="nav-item active" onclick="showPage('dashboard', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    Dashboard
+    ダッシュボード
   </div>
 
-  <div class="nav-section">Quản lý</div>
+  <div class="nav-section">管理</div>
   <div class="nav-item" onclick="showPage('transactions', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-    Thu nhập & Chi tiêu
+    収入・支出
   </div>
   <div class="nav-item" onclick="showPage('budget', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-    Ngân sách
+    予算管理
   </div>
   <div class="nav-item" onclick="showPage('savings', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-    Tiết kiệm
+    貯金・目標
   </div>
   <div class="nav-item" onclick="showPage('debt', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-    Nợ & Vay
+    借金・ローン
   </div>
 
-  <div class="nav-section">Cài đặt</div>
+  <div class="nav-section">設定</div>
   <div class="nav-item" onclick="showPage('settings', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41"/><path d="M4.93 4.93l1.41 1.41"/><path d="M4.93 19.07l1.41-1.41"/><path d="M19.07 19.07l-1.41-1.41"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg>
-    Cài đặt
+    設定
   </div>
 
   <button class="sync-btn" onclick="syncToSheets()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-    Đồng bộ Sheets
+    Sheetsに同期
   </button>
 </aside>
 
@@ -340,61 +360,66 @@
   <!-- DASHBOARD -->
   <div id="page-dashboard" class="page active">
     <div class="page-header">
-      <div class="page-title">Tổng quan tháng này</div>
-      <div style="font-size:13px;color:var(--muted);" id="current-month"></div>
+      <div class="page-title">月次概要</div>
+      <div class="month-nav">
+        <button onclick="changeMonth(-1)">◀</button>
+        <div class="month-label" id="current-month"></div>
+        <button onclick="changeMonth(1)" id="btn-next">▶</button>
+        <button class="today-btn" onclick="goToToday()">今月</button>
+      </div>
     </div>
 
     <div class="cards-row">
       <div class="card">
-        <div class="card-label">Số dư hiện tại</div>
-        <div class="card-value accent" id="dash-balance">0 ₫</div>
-        <div class="card-sub">Cập nhật tự động</div>
+        <div class="card-label">現在の残高</div>
+        <div class="card-value accent" id="dash-balance">¥0</div>
+        <div class="card-sub">自動更新</div>
       </div>
       <div class="card">
-        <div class="card-label">Thu nhập</div>
-        <div class="card-value green" id="dash-income">0 ₫</div>
-        <div class="card-sub" id="dash-income-count">0 khoản</div>
+        <div class="card-label">収入</div>
+        <div class="card-value green" id="dash-income">¥0</div>
+        <div class="card-sub" id="dash-income-count">0 件</div>
       </div>
       <div class="card">
-        <div class="card-label">Chi tiêu</div>
-        <div class="card-value red" id="dash-expense">0 ₫</div>
-        <div class="card-sub" id="dash-expense-count">0 khoản</div>
+        <div class="card-label">支出</div>
+        <div class="card-value red" id="dash-expense">¥0</div>
+        <div class="card-sub" id="dash-expense-count">0 件</div>
       </div>
       <div class="card">
-        <div class="card-label">Tổng nợ</div>
-        <div class="card-value orange" id="dash-debt">0 ₫</div>
-        <div class="card-sub" id="dash-debt-count">0 khoản</div>
+        <div class="card-label">借金合計</div>
+        <div class="card-value orange" id="dash-debt">¥0</div>
+        <div class="card-sub" id="dash-debt-count">0 件</div>
       </div>
     </div>
 
     <div class="two-cols">
       <div class="table-wrap">
         <div class="table-head">
-          <h3>Chi tiêu theo danh mục</h3>
+          <h3>カテゴリ別支出</h3>
         </div>
         <div style="padding:20px;" id="budget-chart-dash">
-          <div style="color:var(--muted);font-size:13px;">Chưa có dữ liệu</div>
+          <div style="color:var(--muted);font-size:13px;">データなし</div>
         </div>
       </div>
       <div class="table-wrap">
         <div class="table-head">
-          <h3>Giao dịch gần nhất</h3>
+          <h3>最近の取引</h3>
         </div>
         <table>
           <thead><tr>
-            <th>Loại</th><th>Danh mục</th><th>Số tiền</th>
+            <th>種類</th><th>カテゴリ</th><th>金額</th>
           </tr></thead>
           <tbody id="recent-transactions">
-            <tr><td colspan="3" style="color:var(--muted);text-align:center;padding:20px;">Chưa có giao dịch</td></tr>
+            <tr><td colspan="3" style="color:var(--muted);text-align:center;padding:20px;">取引なし</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
     <div class="table-wrap">
-      <div class="table-head"><h3>Tiến độ mục tiêu tiết kiệm</h3></div>
+      <div class="table-head"><h3>貯金目標の進捗</h3></div>
       <div style="padding:20px;" id="savings-progress-dash">
-        <div style="color:var(--muted);font-size:13px;">Chưa có mục tiêu</div>
+        <div style="color:var(--muted);font-size:13px;">目標なし</div>
       </div>
     </div>
   </div>
@@ -402,27 +427,27 @@
   <!-- TRANSACTIONS -->
   <div id="page-transactions" class="page">
     <div class="page-header">
-      <div class="page-title">Thu nhập & Chi tiêu</div>
-      <button class="btn btn-primary" onclick="openModal('modal-add-tx')">+ Thêm giao dịch</button>
+      <div class="page-title">収入・支出</div>
+      <button class="btn btn-primary" onclick="openModal('modal-add-tx')">+ 取引を追加</button>
     </div>
 
     <div class="table-wrap">
       <div class="table-head">
-        <h3>Lịch sử giao dịch</h3>
+        <h3>取引履歴</h3>
         <div style="display:flex;gap:10px;">
           <select id="filter-type" onchange="renderTransactions()" style="padding:7px 12px;font-size:13px;">
-            <option value="all">Tất cả</option>
-            <option value="income">Thu nhập</option>
-            <option value="expense">Chi tiêu</option>
+            <option value="all">すべて</option>
+            <option value="income">収入</option>
+            <option value="expense">支出</option>
           </select>
         </div>
       </div>
       <table>
         <thead><tr>
-          <th>Ngày</th><th>Mô tả</th><th>Danh mục</th><th>Loại</th><th>Số tiền</th><th>Thao tác</th>
+          <th>日付</th><th>説明</th><th>カテゴリ</th><th>種類</th><th>金額</th><th>操作</th>
         </tr></thead>
         <tbody id="tx-table-body">
-          <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:24px;">Chưa có giao dịch nào</td></tr>
+          <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:24px;">取引がありません</td></tr>
         </tbody>
       </table>
     </div>
@@ -431,40 +456,39 @@
   <!-- BUDGET -->
   <div id="page-budget" class="page">
     <div class="page-header">
-      <div class="page-title">Ngân sách theo danh mục</div>
-      <button class="btn btn-primary" onclick="openModal('modal-add-budget')">+ Tạo ngân sách</button>
+      <div class="page-title">カテゴリ別予算</div>
+      <button class="btn btn-primary" onclick="openModal('modal-add-budget')">+ 予算を作成</button>
     </div>
-
     <div id="budget-list">
-      <div class="form-card" style="text-align:center;color:var(--muted);">Chưa có ngân sách nào. Nhấn "Tạo ngân sách" để bắt đầu.</div>
+      <div class="form-card" style="text-align:center;color:var(--muted);">予算がありません。「予算を作成」をクリックして始めましょう。</div>
     </div>
   </div>
 
   <!-- SAVINGS -->
   <div id="page-savings" class="page">
     <div class="page-header">
-      <div class="page-title">Tiết kiệm & Mục tiêu</div>
-      <button class="btn btn-primary" onclick="openModal('modal-add-goal')">+ Thêm mục tiêu</button>
+      <div class="page-title">貯金・目標</div>
+      <button class="btn btn-primary" onclick="openModal('modal-add-goal')">+ 目標を追加</button>
     </div>
     <div id="goals-list">
-      <div class="form-card" style="text-align:center;color:var(--muted);">Chưa có mục tiêu tiết kiệm.</div>
+      <div class="form-card" style="text-align:center;color:var(--muted);">貯金目標がありません。</div>
     </div>
   </div>
 
   <!-- DEBT -->
   <div id="page-debt" class="page">
     <div class="page-header">
-      <div class="page-title">Nợ & Vay mượn</div>
-      <button class="btn btn-primary" onclick="openModal('modal-add-debt')">+ Thêm khoản nợ</button>
+      <div class="page-title">借金・ローン管理</div>
+      <button class="btn btn-primary" onclick="openModal('modal-add-debt')">+ 借金を追加</button>
     </div>
     <div id="debt-list">
-      <div class="form-card" style="text-align:center;color:var(--muted);">Chưa có khoản nợ nào.</div>
+      <div class="form-card" style="text-align:center;color:var(--muted);">借金データがありません。</div>
     </div>
   </div>
 
   <!-- SETTINGS -->
   <div id="page-settings" class="page">
-    <div class="page-header"><div class="page-title">Cài đặt</div></div>
+    <div class="page-header"><div class="page-title">設定</div></div>
 
     <div class="sheet-config">
       <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -476,20 +500,20 @@
         <rect x="18" y="32" width="8" height="1.5" rx=".75" fill="#fff"/>
       </svg>
       <div class="cfg-text">
-        <h4>Google Sheets</h4>
-        <p id="sheet-name-display">Chưa kết nối. Nhập Spreadsheet ID bên dưới.</p>
+        <h4>Google スプレッドシート</h4>
+        <p id="sheet-name-display">未接続。下のフォームにSpreadsheet IDを入力してください。</p>
       </div>
-      <div class="sheet-status disconnected" id="sheet-status">Chưa kết nối</div>
+      <div class="sheet-status disconnected" id="sheet-status">未接続</div>
     </div>
 
     <div class="form-card">
-      <h3>Cấu hình Google Sheets</h3>
+      <h3>Google スプレッドシート設定</h3>
       <div style="background:rgba(124,111,255,.08);border:1px solid rgba(124,111,255,.2);border-radius:10px;padding:14px;margin-bottom:18px;font-size:13px;color:var(--muted);line-height:1.6;">
-        <strong style="color:var(--accent);">Hướng dẫn:</strong><br>
-        1. Mở <a href="https://sheets.google.com" target="_blank" style="color:var(--accent);">Google Sheets</a> → Tạo bảng tính mới<br>
-        2. Sao chép <strong>Spreadsheet ID</strong> từ URL (phần giữa /d/ và /edit)<br>
-        3. Vào <strong>Extensions → Apps Script</strong> → Dán đoạn script bên dưới và Deploy as Web App<br>
-        4. Nhập Web App URL vào ô dưới
+        <strong style="color:var(--accent);">設定手順：</strong><br>
+        1. <a href="https://sheets.google.com" target="_blank" style="color:var(--accent);">Google スプレッドシート</a> を開いて新しいシートを作成<br>
+        2. URLから <strong>Spreadsheet ID</strong> をコピー（/d/ と /edit の間の文字列）<br>
+        3. <strong>拡張機能 → Apps Script</strong> を開いて下のスクリプトを貼り付け → ウェブアプリとしてデプロイ<br>
+        4. 発行されたWeb App URLを下の入力欄に貼り付け
       </div>
 
       <div class="form-row">
@@ -498,34 +522,37 @@
           <input type="text" id="sheet-url" placeholder="https://script.google.com/macros/s/..." />
         </div>
         <div class="form-group">
-          <label>Tên bảng tính (tùy chọn)</label>
-          <input type="text" id="sheet-name" placeholder="Ví dụ: Tài chính 2025" />
+          <label>スプレッドシート名（任意）</label>
+          <input type="text" id="sheet-name" placeholder="例：家計簿 2025" />
         </div>
       </div>
-      <button class="btn btn-primary" onclick="saveSheetConfig()">Lưu cấu hình</button>
+      <button class="btn btn-primary" onclick="saveSheetConfig()">設定を保存</button>
     </div>
 
     <div class="form-card">
-      <h3>Google Apps Script (Copy & Deploy)</h3>
+      <h3>Google Apps Script（コピー＆デプロイ）</h3>
       <div id="script-box" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;font-family:monospace;font-size:12px;color:#a0ffa0;line-height:1.8;overflow-x:auto;white-space:pre;">function doGet(e) {
   var p = e.parameter;
   var type = p.type;
+  var month = p.month || ""; // e.g. "2025_04"
   var ss = SpreadsheetApp.getActiveSpreadsheet();
 
   try {
     if (type === "transaction") {
-      var sh = ss.getSheetByName("GiaoDich") || ss.insertSheet("GiaoDich");
+      var shName = month ? "取引_" + month : "取引";
+      var sh = ss.getSheetByName(shName) || ss.insertSheet(shName);
       if (sh.getLastRow() === 0)
-        sh.appendRow(["Ngay","Mo ta","Danh muc","Loai","So tien"]);
+        sh.appendRow(["日付","説明","カテゴリ","種類","金額"]);
       sh.appendRow([p.date, p.desc, p.category, p.txtype, Number(p.amount)]);
 
     } else if (type === "budget") {
-      var sh = ss.getSheetByName("NganSach") || ss.insertSheet("NganSach");
+      var shName = month ? "予算_" + month : "予算";
+      var sh = ss.getSheetByName(shName) || ss.insertSheet(shName);
       if (sh.getLastRow() === 0)
-        sh.appendRow(["Danh muc","Gioi han","Da chi"]);
+        sh.appendRow(["カテゴリ","上限","使用済み"]);
       var data = sh.getDataRange().getValues();
       var found = false;
-      for (var i = 1; i &lt; data.length; i++) {
+      for (var i = 1; i < data.length; i++) {
         if (data[i][0] === p.category) {
           sh.getRange(i+1,2,1,2).setValues([[Number(p.limit),Number(p.spent)]]);
           found = true; break;
@@ -534,15 +561,17 @@
       if (!found) sh.appendRow([p.category, Number(p.limit), Number(p.spent)]);
 
     } else if (type === "goal") {
-      var sh = ss.getSheetByName("MucTieu") || ss.insertSheet("MucTieu");
+      var shName = month ? "目標_" + month : "目標";
+      var sh = ss.getSheetByName(shName) || ss.insertSheet(shName);
       if (sh.getLastRow() === 0)
-        sh.appendRow(["Ten muc tieu","So tien muc tieu","Da tiet kiem"]);
+        sh.appendRow(["目標名","目標金額","貯金済み"]);
       sh.appendRow([p.name, Number(p.target), Number(p.current)]);
 
     } else if (type === "debt") {
-      var sh = ss.getSheetByName("No") || ss.insertSheet("No");
+      var shName = month ? "借金_" + month : "借金";
+      var sh = ss.getSheetByName(shName) || ss.insertSheet(shName);
       if (sh.getLastRow() === 0)
-        sh.appendRow(["Ten khoan no","Tong no","Da tra","Nguoi cho vay","Con lai"]);
+        sh.appendRow(["借金名","合計","返済済み","貸主","残高"]);
       sh.appendRow([p.name, Number(p.total), Number(p.paid), p.lender,
                     Number(p.total)-Number(p.paid)]);
     }
@@ -557,7 +586,7 @@
       .setMimeType(ContentService.MimeType.JSON);
   }
 }</div>
-      <button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="copyScript()">📋 Sao chép script</button>
+      <button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="copyScript()">📋 スクリプトをコピー</button>
     </div>
   </div>
 
@@ -567,41 +596,41 @@
 <!-- Add Transaction -->
 <div class="modal-overlay" id="modal-add-tx">
   <div class="modal">
-    <h3>Thêm giao dịch mới</h3>
+    <h3>取引を追加</h3>
     <div class="form-row">
       <div class="form-group">
-        <label>Loại</label>
+        <label>種類</label>
         <select id="tx-type">
-          <option value="income">Thu nhập</option>
-          <option value="expense">Chi tiêu</option>
+          <option value="income">収入</option>
+          <option value="expense">支出</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Ngày</label>
+        <label>日付</label>
         <input type="date" id="tx-date" />
       </div>
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label>Số tiền (VNĐ)</label>
-        <input type="number" id="tx-amount" placeholder="500000" />
+        <label>金額（円）</label>
+        <input type="number" id="tx-amount" placeholder="5000" />
       </div>
       <div class="form-group">
-        <label>Danh mục</label>
+        <label>カテゴリ</label>
         <select id="tx-category">
-          <option>Lương</option><option>Thưởng</option><option>Đầu tư</option>
-          <option>Ăn uống</option><option>Di chuyển</option><option>Giải trí</option>
-          <option>Mua sắm</option><option>Hóa đơn</option><option>Y tế</option><option>Khác</option>
+          <option>給料</option><option>ボーナス</option><option>投資</option>
+          <option>食費</option><option>交通費</option><option>娯楽</option>
+          <option>買い物</option><option>光熱費</option><option>医療費</option><option>その他</option>
         </select>
       </div>
     </div>
     <div class="form-group" style="margin-bottom:0">
-      <label>Mô tả</label>
-      <input type="text" id="tx-desc" placeholder="Ghi chú ngắn..." />
+      <label>メモ</label>
+      <input type="text" id="tx-desc" placeholder="短いメモ..." />
     </div>
     <div class="modal-actions">
-      <button class="btn btn-danger" onclick="closeModal('modal-add-tx')">Hủy</button>
-      <button class="btn btn-primary" onclick="addTransaction()">Lưu</button>
+      <button class="btn btn-danger" onclick="closeModal('modal-add-tx')">キャンセル</button>
+      <button class="btn btn-primary" onclick="addTransaction()">保存</button>
     </div>
   </div>
 </div>
@@ -609,23 +638,23 @@
 <!-- Add Budget -->
 <div class="modal-overlay" id="modal-add-budget">
   <div class="modal">
-    <h3>Tạo ngân sách</h3>
+    <h3>予算を作成</h3>
     <div class="form-row">
       <div class="form-group">
-        <label>Danh mục</label>
+        <label>カテゴリ</label>
         <select id="budget-cat">
-          <option>Ăn uống</option><option>Di chuyển</option><option>Giải trí</option>
-          <option>Mua sắm</option><option>Hóa đơn</option><option>Y tế</option><option>Khác</option>
+          <option>食費</option><option>交通費</option><option>娯楽</option>
+          <option>買い物</option><option>光熱費</option><option>医療費</option><option>その他</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Giới hạn (VNĐ)</label>
-        <input type="number" id="budget-limit" placeholder="2000000" />
+        <label>上限金額（円）</label>
+        <input type="number" id="budget-limit" placeholder="20000" />
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-danger" onclick="closeModal('modal-add-budget')">Hủy</button>
-      <button class="btn btn-primary" onclick="addBudget()">Lưu</button>
+      <button class="btn btn-danger" onclick="closeModal('modal-add-budget')">キャンセル</button>
+      <button class="btn btn-primary" onclick="addBudget()">保存</button>
     </div>
   </div>
 </div>
@@ -633,24 +662,24 @@
 <!-- Add Goal -->
 <div class="modal-overlay" id="modal-add-goal">
   <div class="modal">
-    <h3>Thêm mục tiêu tiết kiệm</h3>
+    <h3>貯金目標を追加</h3>
     <div class="form-group" style="margin-bottom:14px">
-      <label>Tên mục tiêu</label>
-      <input type="text" id="goal-name" placeholder="Ví dụ: Mua xe, Du lịch Nhật..." />
+      <label>目標名</label>
+      <input type="text" id="goal-name" placeholder="例：車購入、旅行..." />
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label>Số tiền mục tiêu (VNĐ)</label>
-        <input type="number" id="goal-target" placeholder="50000000" />
+        <label>目標金額（円）</label>
+        <input type="number" id="goal-target" placeholder="500000" />
       </div>
       <div class="form-group">
-        <label>Đã tiết kiệm được (VNĐ)</label>
+        <label>貯金済み（円）</label>
         <input type="number" id="goal-current" placeholder="0" />
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-danger" onclick="closeModal('modal-add-goal')">Hủy</button>
-      <button class="btn btn-primary" onclick="addGoal()">Lưu</button>
+      <button class="btn btn-danger" onclick="closeModal('modal-add-goal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="addGoal()">保存</button>
     </div>
   </div>
 </div>
@@ -658,28 +687,28 @@
 <!-- Add Debt -->
 <div class="modal-overlay" id="modal-add-debt">
   <div class="modal">
-    <h3>Thêm khoản nợ</h3>
+    <h3>借金を追加</h3>
     <div class="form-group" style="margin-bottom:14px">
-      <label>Tên khoản nợ</label>
-      <input type="text" id="debt-name" placeholder="Ví dụ: Vay mua nhà..." />
+      <label>借金名</label>
+      <input type="text" id="debt-name" placeholder="例：住宅ローン..." />
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label>Tổng số nợ (VNĐ)</label>
-        <input type="number" id="debt-total" placeholder="100000000" />
+        <label>借金合計（円）</label>
+        <input type="number" id="debt-total" placeholder="1000000" />
       </div>
       <div class="form-group">
-        <label>Đã trả (VNĐ)</label>
+        <label>返済済み（円）</label>
         <input type="number" id="debt-paid" placeholder="0" />
       </div>
     </div>
     <div class="form-group" style="margin-bottom:0">
-      <label>Người cho vay / Ngân hàng</label>
-      <input type="text" id="debt-lender" placeholder="Tên người / tổ chức..." />
+      <label>貸主 / 銀行名</label>
+      <input type="text" id="debt-lender" placeholder="名前または機関名..." />
     </div>
     <div class="modal-actions">
-      <button class="btn btn-danger" onclick="closeModal('modal-add-debt')">Hủy</button>
-      <button class="btn btn-primary" onclick="addDebt()">Lưu</button>
+      <button class="btn btn-danger" onclick="closeModal('modal-add-debt')">キャンセル</button>
+      <button class="btn btn-primary" onclick="addDebt()">保存</button>
     </div>
   </div>
 </div>
@@ -687,7 +716,7 @@
 <!-- TOAST -->
 <div class="toast" id="toast">
   <span class="toast-icon">✓</span>
-  <span id="toast-msg">Đã lưu!</span>
+  <span id="toast-msg">保存しました！</span>
 </div>
 
 <script>
@@ -701,14 +730,36 @@ let state = {
   sheetName: ''
 };
 
-// Load from localStorage
+// Currently viewed month
+let viewYear  = new Date().getFullYear();
+let viewMonth = new Date().getMonth(); // 0-indexed
+
 function loadState() {
-  const saved = localStorage.getItem('vi_ca_nhan');
+  const saved = localStorage.getItem('zaimu_kanri');
   if (saved) state = {...state, ...JSON.parse(saved)};
 }
 
 function saveState() {
-  localStorage.setItem('vi_ca_nhan', JSON.stringify(state));
+  localStorage.setItem('zaimu_kanri', JSON.stringify(state));
+}
+
+// ============ MONTH NAV ============
+function changeMonth(delta) {
+  viewMonth += delta;
+  if (viewMonth > 11) { viewMonth = 0;  viewYear++; }
+  if (viewMonth < 0)  { viewMonth = 11; viewYear--; }
+  renderDashboard();
+}
+
+function goToToday() {
+  viewYear  = new Date().getFullYear();
+  viewMonth = new Date().getMonth();
+  renderDashboard();
+}
+
+function getMonthSheetSuffix() {
+  // e.g. "2025_04"
+  return viewYear + '_' + String(viewMonth + 1).padStart(2, '0');
 }
 
 // ============ NAV ============
@@ -726,24 +777,28 @@ function showPage(id, el) {
 }
 
 // ============ FORMAT ============
-function fmt(n) { return Number(n).toLocaleString('vi-VN') + ' ₫'; }
+function fmt(n) { return '¥' + Number(n).toLocaleString('ja-JP'); }
 
-function getMonth() {
+function getMonthLabel() {
+  const d = new Date(viewYear, viewMonth, 1);
+  const label = d.toLocaleString('ja-JP', { month: 'long', year: 'numeric' });
+  // Disable next button if viewing current month
   const now = new Date();
-  return now.toLocaleString('vi-VN', { month: 'long', year: 'numeric' });
+  const isCurrentMonth = viewYear === now.getFullYear() && viewMonth === now.getMonth();
+  document.getElementById('btn-next').style.opacity = isCurrentMonth ? '0.3' : '1';
+  document.getElementById('btn-next').style.pointerEvents = isCurrentMonth ? 'none' : 'auto';
+  return label;
 }
 
 // ============ MODAL ============
 function openModal(id) {
   document.getElementById(id).classList.add('open');
-  // Set today's date for transaction
   if(id === 'modal-add-tx') {
     document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
   }
 }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-// Click outside to close
 document.querySelectorAll('.modal-overlay').forEach(m => {
   m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
 });
@@ -764,14 +819,14 @@ function addTransaction() {
   const category = document.getElementById('tx-category').value;
   const desc = document.getElementById('tx-desc').value || category;
 
-  if(!amount || amount <= 0) return showToast('Vui lòng nhập số tiền hợp lệ');
-  if(!date) return showToast('Vui lòng chọn ngày');
+  if(!amount || amount <= 0) return showToast('有効な金額を入力してください');
+  if(!date) return showToast('日付を選択してください');
 
   const tx = { id: Date.now(), type, date, amount, category, desc };
   state.transactions.unshift(tx);
   saveState();
   closeModal('modal-add-tx');
-  showToast('✓ Đã thêm giao dịch!');
+  showToast('✓ 取引を追加しました！');
   renderTransactions();
   updateBudgetSpent();
   queueSync('transaction', { date, desc, category, txtype: type, amount });
@@ -782,7 +837,7 @@ function deleteTransaction(id) {
   saveState();
   renderTransactions();
   updateBudgetSpent();
-  showToast('Đã xóa giao dịch');
+  showToast('取引を削除しました');
 }
 
 function renderTransactions() {
@@ -792,7 +847,7 @@ function renderTransactions() {
 
   const tbody = document.getElementById('tx-table-body');
   if(!txs.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:24px;">Chưa có giao dịch nào</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:24px;">取引がありません</td></tr>';
     return;
   }
   tbody.innerHTML = txs.map(t => `
@@ -800,9 +855,9 @@ function renderTransactions() {
       <td>${t.date}</td>
       <td>${t.desc}</td>
       <td>${t.category}</td>
-      <td><span class="badge ${t.type === 'income' ? 'income' : 'expense'}">${t.type === 'income' ? 'Thu' : 'Chi'}</span></td>
+      <td><span class="badge ${t.type === 'income' ? 'income' : 'expense'}">${t.type === 'income' ? '収入' : '支出'}</span></td>
       <td class="${t.type === 'income' ? 'amount-positive' : 'amount-negative'}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteTransaction(${t.id})">Xóa</button></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteTransaction(${t.id})">削除</button></td>
     </tr>
   `).join('');
 }
@@ -811,7 +866,7 @@ function renderTransactions() {
 function addBudget() {
   const category = document.getElementById('budget-cat').value;
   const limit = parseFloat(document.getElementById('budget-limit').value);
-  if(!limit || limit <= 0) return showToast('Vui lòng nhập giới hạn');
+  if(!limit || limit <= 0) return showToast('上限金額を入力してください');
 
   const existing = state.budgets.findIndex(b => b.category === category);
   if(existing >= 0) { state.budgets[existing].limit = limit; }
@@ -819,7 +874,7 @@ function addBudget() {
 
   saveState(); updateBudgetSpent();
   closeModal('modal-add-budget');
-  showToast('✓ Đã lưu ngân sách!');
+  showToast('✓ 予算を保存しました！');
   queueSync('budget', { category, limit, spent: 0 });
 }
 
@@ -836,13 +891,13 @@ function updateBudgetSpent() {
 function deleteBudget(id) {
   state.budgets = state.budgets.filter(b => b.id !== id);
   saveState(); renderBudgets();
-  showToast('Đã xóa ngân sách');
+  showToast('予算を削除しました');
 }
 
 function renderBudgets() {
   const el = document.getElementById('budget-list');
   if(!state.budgets.length) {
-    el.innerHTML = '<div class="form-card" style="text-align:center;color:var(--muted);">Chưa có ngân sách nào. Nhấn "Tạo ngân sách" để bắt đầu.</div>';
+    el.innerHTML = '<div class="form-card" style="text-align:center;color:var(--muted);">予算がありません。「予算を作成」をクリックして始めましょう。</div>';
     return;
   }
   const colors = ['var(--accent)', 'var(--green)', 'var(--orange)', 'var(--red)', 'var(--accent2)', '#4ecbcb'];
@@ -858,7 +913,7 @@ function renderBudgets() {
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
           <span style="color:${color};font-weight:700;">${pct}%</span>
-          <button class="btn btn-danger btn-sm" onclick="deleteBudget(${b.id})">Xóa</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteBudget(${b.id})">削除</button>
         </div>
       </div>
       <div class="progress-track">
@@ -873,35 +928,35 @@ function addGoal() {
   const name = document.getElementById('goal-name').value;
   const target = parseFloat(document.getElementById('goal-target').value);
   const current = parseFloat(document.getElementById('goal-current').value) || 0;
-  if(!name) return showToast('Vui lòng nhập tên mục tiêu');
-  if(!target || target <= 0) return showToast('Vui lòng nhập số tiền mục tiêu');
+  if(!name) return showToast('目標名を入力してください');
+  if(!target || target <= 0) return showToast('目標金額を入力してください');
 
   state.goals.push({ id: Date.now(), name, target, current });
   saveState(); renderGoals();
   closeModal('modal-add-goal');
-  showToast('✓ Đã thêm mục tiêu!');
+  showToast('✓ 目標を追加しました！');
   queueSync('goal', { name, target, current });
 }
 
 function deleteGoal(id) {
   state.goals = state.goals.filter(g => g.id !== id);
   saveState(); renderGoals();
-  showToast('Đã xóa mục tiêu');
+  showToast('目標を削除しました');
 }
 
 function addToGoal(id) {
-  const amount = parseFloat(prompt('Thêm số tiền tiết kiệm (VNĐ):'));
+  const amount = parseFloat(prompt('追加する貯金額（円）：'));
   if(!amount || isNaN(amount)) return;
   const goal = state.goals.find(g => g.id === id);
   if(goal) { goal.current = Math.min(goal.target, goal.current + amount); }
   saveState(); renderGoals();
-  showToast('✓ Đã cập nhật tiết kiệm!');
+  showToast('✓ 貯金を更新しました！');
 }
 
 function renderGoals() {
   const el = document.getElementById('goals-list');
   if(!state.goals.length) {
-    el.innerHTML = '<div class="form-card" style="text-align:center;color:var(--muted);">Chưa có mục tiêu tiết kiệm.</div>';
+    el.innerHTML = '<div class="form-card" style="text-align:center;color:var(--muted);">貯金目標がありません。</div>';
     return;
   }
   el.innerHTML = state.goals.map(g => {
@@ -918,8 +973,8 @@ function renderGoals() {
         <div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2));"></div>
       </div>
       <div style="display:flex;gap:8px;">
-        <button class="btn btn-primary btn-sm" onclick="addToGoal(${g.id})">+ Nạp tiền</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteGoal(${g.id})">Xóa</button>
+        <button class="btn btn-primary btn-sm" onclick="addToGoal(${g.id})">+ 積立</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteGoal(${g.id})">削除</button>
       </div>
     </div>`;
   }).join('');
@@ -931,35 +986,35 @@ function addDebt() {
   const total = parseFloat(document.getElementById('debt-total').value);
   const paid = parseFloat(document.getElementById('debt-paid').value) || 0;
   const lender = document.getElementById('debt-lender').value;
-  if(!name) return showToast('Vui lòng nhập tên khoản nợ');
-  if(!total || total <= 0) return showToast('Vui lòng nhập tổng số nợ');
+  if(!name) return showToast('借金名を入力してください');
+  if(!total || total <= 0) return showToast('借金合計を入力してください');
 
   state.debts.push({ id: Date.now(), name, total, paid, lender });
   saveState(); renderDebts();
   closeModal('modal-add-debt');
-  showToast('✓ Đã thêm khoản nợ!');
+  showToast('✓ 借金を追加しました！');
   queueSync('debt', { name, total, paid, lender });
 }
 
 function payDebt(id) {
-  const amount = parseFloat(prompt('Số tiền đã trả thêm (VNĐ):'));
+  const amount = parseFloat(prompt('返済額（円）：'));
   if(!amount || isNaN(amount)) return;
   const debt = state.debts.find(d => d.id === id);
   if(debt) { debt.paid = Math.min(debt.total, debt.paid + amount); }
   saveState(); renderDebts();
-  showToast('✓ Đã cập nhật khoản nợ!');
+  showToast('✓ 返済情報を更新しました！');
 }
 
 function deleteDebt(id) {
   state.debts = state.debts.filter(d => d.id !== id);
   saveState(); renderDebts();
-  showToast('Đã xóa khoản nợ');
+  showToast('借金を削除しました');
 }
 
 function renderDebts() {
   const el = document.getElementById('debt-list');
   if(!state.debts.length) {
-    el.innerHTML = '<div class="form-card" style="text-align:center;color:var(--muted);">Chưa có khoản nợ nào.</div>';
+    el.innerHTML = '<div class="form-card" style="text-align:center;color:var(--muted);">借金データがありません。</div>';
     return;
   }
   el.innerHTML = state.debts.map(d => {
@@ -968,15 +1023,15 @@ function renderDebts() {
     return `<div class="debt-card">
       <div class="debt-info">
         <div class="debt-name">${d.name}</div>
-        <div class="debt-detail">${d.lender ? 'Người vay: ' + d.lender + ' · ' : ''}Còn lại: <span style="color:var(--red);font-weight:600;">${fmt(remaining)}</span></div>
-        <div style="margin-top:8px;font-size:12px;color:var(--muted);">Đã trả ${pct}% (${fmt(d.paid)} / ${fmt(d.total)})</div>
+        <div class="debt-detail">${d.lender ? '貸主：' + d.lender + ' · ' : ''}残高：<span style="color:var(--red);font-weight:600;">${fmt(remaining)}</span></div>
+        <div style="margin-top:8px;font-size:12px;color:var(--muted);">返済済み ${pct}%（${fmt(d.paid)} / ${fmt(d.total)}）</div>
         <div class="progress-track" style="width:200px;margin-top:8px;">
           <div class="progress-fill" style="width:${pct}%;background:var(--green);"></div>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
-        <button class="btn btn-primary btn-sm" onclick="payDebt(${d.id})">Trả nợ</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteDebt(${d.id})">Xóa</button>
+        <button class="btn btn-primary btn-sm" onclick="payDebt(${d.id})">返済</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteDebt(${d.id})">削除</button>
       </div>
     </div>`;
   }).join('');
@@ -984,11 +1039,11 @@ function renderDebts() {
 
 // ============ DASHBOARD ============
 function renderDashboard() {
-  document.getElementById('current-month').textContent = getMonth();
-  const now = new Date();
+  document.getElementById('current-month').textContent = getMonthLabel();
+
   const monthTxs = state.transactions.filter(t => {
     const d = new Date(t.date);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    return d.getMonth() === viewMonth && d.getFullYear() === viewYear;
   });
 
   const income = monthTxs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
@@ -999,41 +1054,44 @@ function renderDashboard() {
   document.getElementById('dash-income').textContent = fmt(income);
   document.getElementById('dash-expense').textContent = fmt(expense);
   document.getElementById('dash-debt').textContent = fmt(totalDebt);
-  document.getElementById('dash-income-count').textContent = monthTxs.filter(t => t.type==='income').length + ' khoản';
-  document.getElementById('dash-expense-count').textContent = monthTxs.filter(t => t.type==='expense').length + ' khoản';
-  document.getElementById('dash-debt-count').textContent = state.debts.length + ' khoản';
+  document.getElementById('dash-income-count').textContent = monthTxs.filter(t => t.type==='income').length + ' 件';
+  document.getElementById('dash-expense-count').textContent = monthTxs.filter(t => t.type==='expense').length + ' 件';
+  document.getElementById('dash-debt-count').textContent = state.debts.length + ' 件';
 
-  // Budget chart
+  // Budget chart — filter spending for viewed month
   const bc = document.getElementById('budget-chart-dash');
   if(state.budgets.length) {
     const colors = ['var(--accent)', 'var(--green)', 'var(--orange)', 'var(--red)', 'var(--accent2)'];
     bc.innerHTML = state.budgets.map((b, i) => {
-      const pct = Math.min(100, Math.round((b.spent / b.limit) * 100));
+      const monthSpent = monthTxs
+        .filter(t => t.type === 'expense' && t.category === b.category)
+        .reduce((s, t) => s + t.amount, 0);
+      const pct = Math.min(100, Math.round((monthSpent / b.limit) * 100));
       const color = pct >= 100 ? 'var(--red)' : pct >= 80 ? 'var(--orange)' : colors[i % colors.length];
       return `<div class="progress-item">
         <div class="progress-header">
           <span>${b.category}</span>
-          <span style="color:${color};">${fmt(b.spent)} / ${fmt(b.limit)}</span>
+          <span style="color:${color};">${fmt(monthSpent)} / ${fmt(b.limit)}</span>
         </div>
         <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${color};"></div></div>
       </div>`;
     }).join('');
-  } else { bc.innerHTML = '<div style="color:var(--muted);font-size:13px;">Chưa có ngân sách</div>'; }
+  } else { bc.innerHTML = '<div style="color:var(--muted);font-size:13px;">予算データなし</div>'; }
 
-  // Recent transactions
+  // Recent transactions for viewed month
   const rt = document.getElementById('recent-transactions');
-  const recent = state.transactions.slice(0, 5);
+  const recent = monthTxs.slice(0, 5);
   if(!recent.length) {
-    rt.innerHTML = '<tr><td colspan="3" style="color:var(--muted);text-align:center;padding:20px;">Chưa có giao dịch</td></tr>';
+    rt.innerHTML = '<tr><td colspan="3" style="color:var(--muted);text-align:center;padding:20px;">この月の取引なし</td></tr>';
   } else {
     rt.innerHTML = recent.map(t => `<tr>
-      <td><span class="badge ${t.type==='income'?'income':'expense'}">${t.type==='income'?'Thu':'Chi'}</span></td>
+      <td><span class="badge ${t.type==='income'?'income':'expense'}">${t.type==='income'?'収入':'支出'}</span></td>
       <td>${t.category}</td>
       <td class="${t.type==='income'?'amount-positive':'amount-negative'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</td>
     </tr>`).join('');
   }
 
-  // Savings progress
+  // Savings
   const sp = document.getElementById('savings-progress-dash');
   if(state.goals.length) {
     sp.innerHTML = state.goals.map(g => {
@@ -1046,7 +1104,7 @@ function renderDashboard() {
         <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2));"></div></div>
       </div>`;
     }).join('');
-  } else { sp.innerHTML = '<div style="color:var(--muted);font-size:13px;">Chưa có mục tiêu tiết kiệm</div>'; }
+  } else { sp.innerHTML = '<div style="color:var(--muted);font-size:13px;">目標なし</div>'; }
 }
 
 // ============ SETTINGS ============
@@ -1054,9 +1112,9 @@ function loadSettings() {
   document.getElementById('sheet-url').value = state.sheetUrl || '';
   document.getElementById('sheet-name').value = state.sheetName || '';
   if(state.sheetUrl) {
-    document.getElementById('sheet-status').textContent = 'Đã kết nối';
+    document.getElementById('sheet-status').textContent = '接続済み';
     document.getElementById('sheet-status').className = 'sheet-status connected';
-    document.getElementById('sheet-name-display').textContent = state.sheetName || 'Google Sheets đã kết nối';
+    document.getElementById('sheet-name-display').textContent = state.sheetName || 'Google スプレッドシート接続済み';
   }
 }
 
@@ -1065,23 +1123,23 @@ function saveSheetConfig() {
   state.sheetName = document.getElementById('sheet-name').value.trim();
   saveState();
   if(state.sheetUrl) {
-    document.getElementById('sheet-status').textContent = 'Đã kết nối';
+    document.getElementById('sheet-status').textContent = '接続済み';
     document.getElementById('sheet-status').className = 'sheet-status connected';
-    document.getElementById('sheet-name-display').textContent = state.sheetName || 'Google Sheets đã kết nối';
-    showToast('✓ Đã lưu cấu hình Google Sheets!');
+    document.getElementById('sheet-name-display').textContent = state.sheetName || 'Google スプレッドシート接続済み';
+    showToast('✓ Google Sheets設定を保存しました！');
   } else {
-    showToast('Vui lòng nhập URL Apps Script');
+    showToast('Apps Script URLを入力してください');
   }
 }
 
 function copyScript() {
   const code = document.getElementById('script-box');
   if(code) {
-    navigator.clipboard.writeText(code.textContent.trim()).then(() => showToast('✓ Đã sao chép script!'));
+    navigator.clipboard.writeText(code.textContent.trim()).then(() => showToast('✓ スクリプトをコピーしました！'));
   }
 }
 
-// ============ GOOGLE SHEETS SYNC (GET params - bypass CORS) ============
+// ============ GOOGLE SHEETS SYNC ============
 function sendToSheets(type, data) {
   if(!state.sheetUrl) return Promise.resolve();
   return new Promise((resolve) => {
@@ -1090,11 +1148,10 @@ function sendToSheets(type, data) {
     const img = new Image();
     img.onload = img.onerror = () => resolve();
     img.src = url;
-    setTimeout(resolve, 5000); // fallback timeout
+    setTimeout(resolve, 5000);
   });
 }
 
-// Queue to avoid flooding requests
 let syncQueue = [];
 let isSyncing = false;
 
@@ -1108,7 +1165,7 @@ async function processQueue() {
   while(syncQueue.length > 0) {
     const item = syncQueue.shift();
     await sendToSheets(item.type, item.data);
-    await new Promise(r => setTimeout(r, 300)); // small delay between requests
+    await new Promise(r => setTimeout(r, 300));
   }
   isSyncing = false;
 }
@@ -1116,20 +1173,34 @@ async function processQueue() {
 async function syncToSheets() {
   if(!state.sheetUrl) {
     showPage('settings', document.querySelector('.nav-item:last-of-type'));
-    showToast('⚙️ Vui lòng cấu hình Google Sheets trước!');
+    showToast('⚙️ 先にGoogle Sheetsを設定してください！');
     return;
   }
   const btn = document.querySelector('.sync-btn');
   btn.classList.add('syncing');
-  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;animation:spin 1s linear infinite"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Đang đồng bộ...';
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;animation:spin 1s linear infinite"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> 同期中...';
 
-  // Send all data sequentially
-  const items = [
-    ...state.transactions.map(t => ({ type: 'transaction', data: { date: t.date, desc: t.desc, category: t.category, txtype: t.type, amount: t.amount }})),
-    ...state.budgets.map(b => ({ type: 'budget', data: { category: b.category, limit: b.limit, spent: b.spent }})),
-    ...state.goals.map(g => ({ type: 'goal', data: { name: g.name, target: g.target, current: g.current }})),
-    ...state.debts.map(d => ({ type: 'debt', data: { name: d.name, total: d.total, paid: d.paid, lender: d.lender }})),
-  ];
+  // Group transactions by month and send with month tag
+  const txByMonth = {};
+  state.transactions.forEach(t => {
+    const d = new Date(t.date);
+    const key = d.getFullYear() + '_' + String(d.getMonth()+1).padStart(2,'0');
+    if(!txByMonth[key]) txByMonth[key] = [];
+    txByMonth[key].push(t);
+  });
+
+  const now = new Date();
+  const currentMonth = now.getFullYear() + '_' + String(now.getMonth()+1).padStart(2,'0');
+
+  const items = [];
+  // Transactions — each with its own month
+  Object.entries(txByMonth).forEach(([month, txs]) => {
+    txs.forEach(t => items.push({ type: 'transaction', data: { date: t.date, desc: t.desc, category: t.category, txtype: t.type, amount: t.amount, month }}));
+  });
+  // Budgets/Goals/Debts — use current month
+  state.budgets.forEach(b => items.push({ type: 'budget', data: { category: b.category, limit: b.limit, spent: b.spent, month: currentMonth }}));
+  state.goals.forEach(g => items.push({ type: 'goal', data: { name: g.name, target: g.target, current: g.current, month: currentMonth }}));
+  state.debts.forEach(d => items.push({ type: 'debt', data: { name: d.name, total: d.total, paid: d.paid, lender: d.lender, month: currentMonth }}));
 
   for(const item of items) {
     await sendToSheets(item.type, item.data);
@@ -1137,11 +1208,10 @@ async function syncToSheets() {
   }
 
   btn.classList.remove('syncing');
-  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Đồng bộ Sheets';
-  showToast('✓ Đã đồng bộ ' + items.length + ' mục lên Sheets!');
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Sheetsに同期';
+  showToast('✓ ' + items.length + ' 件をSheetsに同期しました！');
 }
 
-// Spin animation
 const style = document.createElement('style');
 style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
 document.head.appendChild(style);
